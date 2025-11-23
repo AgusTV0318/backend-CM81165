@@ -1,0 +1,13 @@
+[
+  {
+    "id": 2,
+    "title": "Mouse Logitech",
+    "description": "Mouse inalámbrico ergonómico",
+    "code": "MOU001",
+    "price": 29.99,
+    "status": true,
+    "stock": 50,
+    "category": "Accesorios",
+    "thumbnails": []
+  }
+]
