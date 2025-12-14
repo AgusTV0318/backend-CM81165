@@ -1,5 +1,19 @@
 [
   {
+    "id": 1,
+    "title": "Laptop HP Pavilion",
+    "description": "Laptop HP Pavilion 15.6 pulgadas",
+    "code": "LAP001",
+    "price": 899.99,
+    "status": true,
+    "stock": 10,
+    "category": "Electrónica",
+    "thumbnails": [
+      "img1.jpg",
+      "img2.jpg"
+    ]
+  },
+  {
     "id": 2,
     "title": "Mouse Logitech",
     "description": "Mouse inalámbrico ergonómico",
@@ -8,6 +22,17 @@
     "status": true,
     "stock": 50,
     "category": "Accesorios",
+    "thumbnails": []
+  },
+  {
+    "id": 3,
+    "title": "Auriculares Redragon",
+    "description": "Auriculares Redragon con sonido envolvente ",
+    "code": "RED003",
+    "price": 49.99,
+    "status": true,
+    "stock": 75,
+    "category": "Accesorios ",
     "thumbnails": []
   }
 ]

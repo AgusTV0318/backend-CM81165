@@ -1,0 +1,48 @@
+<div class="container">
+  <h1>{{title}}</h1>
+
+  <div class="form-container">
+    <h2>Agregar Nuevo Producto</h2>
+    <form id="addProductForm">
+      <input type="text" id="title" placeholder="Título" required />
+      <input type="text" id="description" placeholder="Descripción" required />
+      <input type="text" id="code" placeholder="Código" required />
+      <input
+        type="number"
+        id="price"
+        placeholder="Precio"
+        step="0.01"
+        required
+      />
+      <input type="number" id="stock" placeholder="Stock" required />
+      <input type="text" id="category" placeholder="Categoría" required />
+      <button type="submit">Agregar Producto</button>
+    </form>
+  </div>
+
+  <div class="products-section">
+    <h2>Lista de Productos</h2>
+    <div id="productsList" class="products-grid">
+      {{#if hasProducts}}
+        {{#each products}}
+          <div class="product-card" data-id="{{this.id}}">
+            <h3>{{this.title}}</h3>
+            <p class="description">{{this.description}}</p>
+            <p class="price">Precio: ${{this.price}}</p>
+            <p class="stock">Stock: {{this.stock}}</p>
+            <p class="category">Categoría: {{this.category}}</p>
+            <p class="code">Código: {{this.code}}</p>
+            <button class="delete-btn" onclick="deleteProduct({{this.id}})">
+              Eliminar
+            </button>
+          </div>
+        {{/each}}
+      {{else}}
+        <p class="no-products">No hay productos disponibles.</p>
+      {{/if}}
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/realTimeProducts.js"></script>

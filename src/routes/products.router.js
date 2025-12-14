@@ -48,6 +48,10 @@ router.post("/", async (req, res) => {
     const productData = req.body;
     const newProduct = await productManager.addProduct(productData);
 
+    const io = req.app.get("io");
+    const products = await productManager.getProducts();
+    io.emit("updateProducts", products);
+
     res.status(201).json({
       status: "success",
       payload: newProduct,
@@ -70,6 +74,10 @@ router.put("/:pid", async (req, res) => {
       updatedFields
     );
 
+    const io = req.app.get("io");
+    const products = await productManager.getProducts();
+    io.emit("updateProducts", products);
+
     res.json({
       status: "success",
       payload: updatedProduct,
@@ -86,6 +94,10 @@ router.delete("/:pid", async (req, res) => {
   try {
     const productId = parseInt(req.params.pid);
     await productManager.deleteProduct(productId);
+
+    const io = req.app.get("io");
+    const products = await productManager.getProducts();
+    io.emit("updateProducts", products);
 
     res.json({
       status: "success",
