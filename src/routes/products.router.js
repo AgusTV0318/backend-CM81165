@@ -1,16 +1,22 @@
 import express from "express";
-import ProductManager from "../managers/ProductManager.js";
+import productDao from "../dao/ProductDao.js";
 
 const router = express.Router();
-const productManager = new ProductManager();
 
 router.get("/", async (req, res) => {
   try {
-    const products = await productManager.getProducts();
-    res.json({
-      status: "success",
-      payload: products,
+    const { limit, page, sort, query, category, status } = req.query;
+
+    const result = await productDao.getProducts({
+      limit,
+      page,
+      sort,
+      query,
+      category,
+      status,
     });
+
+    res.json(result);
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -21,13 +27,12 @@ router.get("/", async (req, res) => {
 
 router.get("/:pid", async (req, res) => {
   try {
-    const productId = parseInt(req.params.pid);
-    const product = await productManager.getProductById(productId);
+    const product = await productDao.getProductById(req.params.pid);
 
     if (!product) {
       return res.status(404).json({
         status: "error",
-        message: "Producto no encotrado",
+        message: "Producto no encontrado",
       });
     }
 
@@ -45,12 +50,11 @@ router.get("/:pid", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const productData = req.body;
-    const newProduct = await productManager.addProduct(productData);
+    const newProduct = await productDao.addProduct(req.body);
 
     const io = req.app.get("io");
-    const products = await productManager.getProducts();
-    io.emit("updateProducts", products);
+    const result = await productDao.getProducts({});
+    io.emit("updateProducts", result.payload);
 
     res.status(201).json({
       status: "success",
@@ -66,17 +70,14 @@ router.post("/", async (req, res) => {
 
 router.put("/:pid", async (req, res) => {
   try {
-    const productId = parseInt(req.params.pid);
-    const updatedFields = req.body;
-
-    const updatedProduct = await productManager.updateProduct(
-      productId,
-      updatedFields
+    const updatedProduct = await productDao.updateProduct(
+      req.params.pid,
+      req.body
     );
 
     const io = req.app.get("io");
-    const products = await productManager.getProducts();
-    io.emit("updateProducts", products);
+    const result = await productDao.getProducts({});
+    io.emit("updateProducts", result.payload);
 
     res.json({
       status: "success",
@@ -92,12 +93,11 @@ router.put("/:pid", async (req, res) => {
 
 router.delete("/:pid", async (req, res) => {
   try {
-    const productId = parseInt(req.params.pid);
-    await productManager.deleteProduct(productId);
+    await productDao.deleteProduct(req.params.pid);
 
     const io = req.app.get("io");
-    const products = await productManager.getProducts();
-    io.emit("updateProducts", products);
+    const result = await productDao.getProducts({});
+    io.emit("updateProducts", result.payload);
 
     res.json({
       status: "success",

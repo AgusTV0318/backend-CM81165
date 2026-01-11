@@ -1,0 +1,88 @@
+<div class="container">
+    <div class="product-detail">
+        <div class="product-images">
+            {{#if product.thumbnails.length}}
+                {{#each product.thumbnails}}
+                    <img src="{{this}}" alt="{{../product.title}}" class="product-image">
+                {{/each}}
+            {{else}}
+                <div class="no-image">Sin imagen</div>
+            {{/if}}
+        </div>
+
+        <div class="product-info">
+            <h1>{{product.title}}</h1>
+            
+            <p class="product-description">{{product.description}}</p>
+            
+            <div class="product-details">
+                <p class="price-detail">
+                    <strong>Precio:</strong> 
+                    <span class="price-value">${{product.price}}</span>
+                </p>
+                
+                <p><strong>Código:</strong> {{product.code}}</p>
+                <p><strong>Categoría:</strong> {{product.category}}</p>
+                <p><strong>Stock disponible:</strong> {{product.stock}} unidades</p>
+                
+                <p class="status-detail">
+                    <strong>Estado:</strong>
+                    {{#if product.status}}
+                        <span class="available">✓ Disponible</span>
+                    {{else}}
+                        <span class="unavailable">✗ No disponible</span>
+                    {{/if}}
+                </p>
+            </div>
+
+            <div class="product-actions-detail">
+                {{#if product.status}}
+                    <div class="quantity-selector">
+                        <label for="quantity">Cantidad:</label>
+                        <input type="number" id="quantity" value="1" min="1" max="{{product.stock}}">
+                    </div>
+                    
+                    <button onclick="addToCart('{{product._id}}')" class="btn-add-cart-detail">
+                        Agregar al carrito
+                    </button>
+                {{else}}
+                    <p class="out-of-stock">Producto no disponible</p>
+                {{/if}}
+                
+                <a href="/products" class="btn-back">← Volver a productos</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function getOrCreateCart() {
+        let cartId = sessionStorage.getItem('cartId');
+        
+        if (!cartId) {
+            const response = await fetch('/api/carts', { method: 'POST' });
+            const data = await response.json();
+            cartId = data.payload._id;
+            sessionStorage.setItem('cartId', cartId);
+        }
+        
+        return cartId;
+    }
+
+    async function addToCart(productId) {
+        try {
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const cartId = await getOrCreateCart();
+            
+            for (let i = 0; i < quantity; i++) {
+                await fetch(`/api/carts/${cartId}/product/${productId}`, {
+                    method: 'POST'
+                });
+            }
+            
+            alert(`${quantity} producto(s) agregado(s) al carrito`);
+        } catch (error) {
+            alert('Error al agregar producto al carrito');
+        }
+    }
+</script>

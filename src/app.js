@@ -3,20 +3,38 @@ import { engine } from "express-handlebars";
 import { Server } from "socket.io";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import dotenv from "dotenv";
+import { connectDB } from "./config/database.js";
 import productsRouter from "./routes/products.router.js";
 import cartsRouter from "./routes/carts.router.js";
 import viewsRouter from "./routes/views.router.js";
-import ProductManager from "./managers/ProductManager.js";
+import productDao from "./dao/ProductDao.js";
+import { resourceLimits } from "worker_threads";
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
-const productManager = new ProductManager();
+await connectDB();
 
-app.engine("handlebars", engine());
+app.engine(
+  "handlebars",
+  engine({
+    helpers: {
+      eq: (a, b) => a === b,
+      multiply: (a, b) => a * b,
+      calculateTotal: (products) => {
+        return products.reduce((total, item) => {
+          return total + item.product.price * item.quantity;
+        }, 0);
+      },
+    },
+  })
+);
 app.set("view engine", "handlebars");
 app.set("views", join(__dirname, "views"));
 
@@ -43,9 +61,9 @@ io.on("connection", (socket) => {
 
   socket.on("addProduct", async (productData) => {
     try {
-      const newProduct = await productManager.addProduct(productData);
-      const products = await productManager.getProducts();
-      io.emit("updateProducts", products);
+      const newProduct = await productDao.addProduct(productData);
+      const result = await productDao.getProducts({});
+      io.emit("updateProducts", result.payload);
       socket.emit("success", "Producto agregado correctamente");
     } catch (error) {
       socket.emit("error", error.message);
@@ -54,9 +72,9 @@ io.on("connection", (socket) => {
 
   socket.on("deleteProduct", async (id) => {
     try {
-      await productManager.deleteProduct(id);
-      const products = await productManager.getProducts();
-      io.emit("updateProducts", products);
+      await productDao.deleteProduct(id);
+      const result = await productDao.getProducts();
+      io.emit("updateProducts", result.payload);
       socket.emit("success", "Producto eliminado correctamente");
     } catch (error) {
       socket.emit("error", error.message);

@@ -1,0 +1,140 @@
+<div class="container">
+    <h1>{{title}}</h1>
+
+    {{#if cart.products.length}}
+        <div class="cart-container">
+            <div class="cart-items">
+                {{#each cart.products}}
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <h3>{{this.product.title}}</h3>
+                            <p class="cart-item-description">{{this.product.description}}</p>
+                            <p class="cart-item-code">Código: {{this.product.code}}</p>
+                        </div>
+
+                        <div class="cart-item-details">
+                            <p class="cart-item-price">
+                                Precio unitario: ${{this.product.price}}
+                            </p>
+                            
+                            <div class="quantity-controls">
+                                <label>Cantidad:</label>
+                                <input 
+                                    type="number" 
+                                    value="{{this.quantity}}" 
+                                    min="1" 
+                                    onchange="updateQuantity('{{../cartId}}', '{{this.product._id}}', this.value)"
+                                    class="quantity-input"
+                                >
+                            </div>
+
+                            <p class="cart-item-subtotal">
+                                <strong>Subtotal: ${{multiply this.product.price this.quantity}}</strong>
+                            </p>
+
+                            <button 
+                                onclick="removeFromCart('{{../cartId}}', '{{this.product._id}}')" 
+                                class="btn-remove"
+                            >
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+
+            <div class="cart-summary">
+                <h2>Resumen del pedido</h2>
+                <div class="summary-line">
+                    <span>Total de productos:</span>
+                    <span>{{cart.products.length}}</span>
+                </div>
+                <div class="summary-line total">
+                    <span>Total:</span>
+                    <span id="total">${{calculateTotal cart.products}}</span>
+                </div>
+
+                <button onclick="clearCart('{{cartId}}')" class="btn-clear-cart">
+                    Vaciar carrito
+                </button>
+
+                <button class="btn-checkout">
+                    Finalizar compra
+                </button>
+
+                <a href="/products" class="btn-continue">
+                    Continuar comprando
+                </a>
+            </div>
+        </div>
+    {{else}}
+        <div class="empty-cart">
+            <p>Tu carrito está vacío</p>
+            <a href="/products" class="btn-shop">Ir a comprar</a>
+        </div>
+    {{/if}}
+</div>
+
+<script>
+    async function updateQuantity(cartId, productId, quantity) {
+        try {
+            const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ quantity: parseInt(quantity) })
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                location.reload(); 
+            } else {
+                alert('Error al actualizar cantidad: ' + data.message);
+            }
+        } catch (error) {
+            alert('Error al actualizar cantidad');
+        }
+    }
+
+    async function removeFromCart(cartId, productId) {
+        if (!confirm('¿Eliminar este producto del carrito?')) return;
+
+        try {
+            const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+                method: 'DELETE'
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                location.reload();
+            } else {
+                alert('Error al eliminar producto: ' + data.message);
+            }
+        } catch (error) {
+            alert('Error al eliminar producto');
+        }
+    }
+
+    async function clearCart(cartId) {
+        if (!confirm('¿Vaciar todo el carrito?')) return;
+
+        try {
+            const response = await fetch(`/api/carts/${cartId}`, {
+                method: 'DELETE'
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                location.reload();
+            } else {
+                alert('Error al vaciar carrito: ' + data.message);
+            }
+        } catch (error) {
+            alert('Error al vaciar carrito');
+        }
+    }
+</script>

@@ -1,0 +1,117 @@
+<div class="container">
+    <h1>{{title}}</h1>
+
+    <div class="filters">
+        <form method="GET" action="/products">
+            <div class="filter-group">
+                <label for="category">Categoría:</label>
+                <select name="category" id="category">
+                    <option value="">Todas</option>
+                    <option value="Electrónica" {{#if (eq category "Electrónica")}}selected{{/if}}>Electrónica</option>
+                    <option value="Accesorios" {{#if (eq category "Accesorios")}}selected{{/if}}>Accesorios</option>
+                    <option value="Ropa" {{#if (eq category "Ropa")}}selected{{/if}}>Ropa</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="status">Disponibilidad:</label>
+                <select name="status" id="status">
+                    <option value="">Todos</option>
+                    <option value="true" {{#if (eq status "true")}}selected{{/if}}>Disponibles</option>
+                    <option value="false" {{#if (eq status "false")}}selected{{/if}}>No disponibles</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="sort">Ordenar por precio:</label>
+                <select name="sort" id="sort">
+                    <option value="">Sin orden</option>
+                    <option value="asc" {{#if (eq sort "asc")}}selected{{/if}}>Menor a mayor</option>
+                    <option value="desc" {{#if (eq sort "desc")}}selected{{/if}}>Mayor a menor</option>
+                </select>
+            </div>
+
+            <button type="submit" class="filter-btn">Filtrar</button>
+        </form>
+    </div>
+
+      {{#if products.length}}
+        <div class="products-grid">
+            {{#each products}}
+                <div class="product-card">
+                    <h3>{{this.title}}</h3>
+                    <p class="description">{{this.description}}</p>
+                    <p class="price">Precio: ${{this.price}}</p>
+                    <p class="stock">Stock: {{this.stock}}</p>
+                    <p class="category">Categoría: {{this.category}}</p>
+                    <p class="status">
+                        Estado: 
+                        {{#if this.status}}
+                            <span class="available">Disponible</span>
+                        {{else}}
+                            <span class="unavailable">No disponible</span>
+                        {{/if}}
+                    </p>
+                    <div class="product-actions">
+                        <a href="/products/{{this._id}}" class="btn-detail">Ver detalle</a>
+                        <button onclick="addToCart('{{this._id}}')" class="btn-add-cart">
+                            Agregar al carrito
+                        </button>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+
+ <div class="pagination">
+            {{#if hasPrevPage}}
+                <a href="{{prevLink}}" class="page-btn">← Anterior</a>
+            {{else}}
+                <span class="page-btn disabled">← Anterior</span>
+            {{/if}}
+
+            <span class="page-info">Página {{page}} de {{totalPages}}</span>
+
+            {{#if hasNextPage}}
+                <a href="{{nextLink}}" class="page-btn">Siguiente →</a>
+            {{else}}
+                <span class="page-btn disabled">Siguiente →</span>
+            {{/if}}
+        </div>
+    {{else}}
+        <p class="no-products">No hay productos disponibles con los filtros seleccionados.</p>
+    {{/if}}
+</div>
+
+<script>
+ async function getOrCreateCart() {
+        let cartId = sessionStorage.getItem('cartId');
+        
+        if (!cartId) {
+            const response = await fetch('/api/carts', { method: 'POST' });
+            const data = await response.json();
+            cartId = data.payload._id;
+            sessionStorage.setItem('cartId', cartId);
+        }
+        
+        return cartId;
+    }
+
+    async function addToCart(productId) {
+        try {
+            const cartId = await getOrCreateCart();
+            const response = await fetch(`/api/carts/${cartId}/product/${productId}`, {
+                method: 'POST'
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                alert('Producto agregado al carrito');
+            } else {
+                alert('Error al agregar producto: ' + data.message);
+            }
+        } catch (error) {
+            alert('Error al agregar producto al carrito');
+        }
+    }
+</script>
