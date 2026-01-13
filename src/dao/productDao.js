@@ -7,18 +7,18 @@ class ProductDao {
 
       const filter = {};
 
-      if (query) {
+      if (query && query.trim() !== "") {
         filter.$or = [
           { title: { $regex: query, $options: "i" } },
           { description: { $regex: query, $options: "i" } },
         ];
       }
 
-      if (category) {
+      if (category && category !== "" && category !== "Todas") {
         filter.category = category;
       }
 
-      if (status !== undefined) {
+      if (status !== undefined && status !== "") {
         filter.status = status === "true" || status === true;
       }
 
@@ -28,11 +28,16 @@ class ProductDao {
         lean: true,
       };
 
-      if (sort) {
+      if (sort && sort !== "") {
         paginateOptions.sort = { price: sort === "asc" ? 1 : -1 };
       }
 
       const result = await ProductModel.paginate(filter, paginateOptions);
+
+      const baseUrl = "/products";
+      const params = `&limit=${limit}${sort ? `&sort=${sort}` : ""}${
+        category ? `&category=${category}` : ""
+      }${status !== undefined ? `&status=${status}` : ""}`;
 
       return {
         status: "success",
@@ -44,18 +49,10 @@ class ProductDao {
         hasPrevPage: result.hasPrevPage,
         hasNextPage: result.hasNextPage,
         prevLink: result.hasPrevPage
-          ? `/api/products?page=${result.prevPage}&limit=${limit}${
-              sort ? `&sort=${sort}` : ""
-            }${category ? `&category=${category}` : ""}${
-              status !== undefined ? `&status=${status}` : ""
-            }`
+          ? `${baseUrl}?page=${result.prevPage}${params}`
           : null,
         nextLink: result.hasNextPage
-          ? `/api/products?page=${result.nextPage}&limit=${limit}${
-              sort ? `&sort=${sort}` : ""
-            }${category ? `&category=${category}` : ""}${
-              status !== undefined ? `&status=${status}` : ""
-            }`
+          ? `${baseUrl}?page=${result.nextPage}${params}`
           : null,
       };
     } catch (error) {
@@ -112,9 +109,7 @@ class ProductDao {
 
       return product;
     } catch (error) {
-      if (error.message === "Producto no encontrado") {
-        throw error;
-      }
+      if (error.message === "Producto no encontrado") throw error;
       if (error.name === "ValidationError") {
         const messages = Object.values(error.errors).map((err) => err.message);
         throw new Error(messages.join(", "));
@@ -126,9 +121,7 @@ class ProductDao {
   async deleteProduct(id) {
     try {
       const product = await ProductModel.findByIdAndDelete(id);
-      if (!product) {
-        throw new Error("Producto no encontrado");
-      }
+      if (!product) throw new Error("Producto no encontrado");
       return product;
     } catch (error) {
       throw new Error(`Error al eliminar producto: ${error.message}`);
