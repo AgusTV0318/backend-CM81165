@@ -9,7 +9,6 @@ import productsRouter from "./routes/products.router.js";
 import cartsRouter from "./routes/carts.router.js";
 import viewsRouter from "./routes/views.router.js";
 import productDao from "./dao/ProductDao.js";
-import { resourceLimits } from "worker_threads";
 
 dotenv.config();
 
