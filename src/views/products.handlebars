@@ -35,7 +35,7 @@
         </form>
     </div>
 
-      {{#if products.length}}
+    {{#if products.length}}
         <div class="products-grid">
             {{#each products}}
                 <div class="product-card">
@@ -54,7 +54,7 @@
                     </p>
                     <div class="product-actions">
                         <a href="/products/{{this._id}}" class="btn-detail">Ver detalle</a>
-                        <button onclick="addToCart('{{this._id}}')" class="btn-add-cart">
+                        <button class="btn-add-cart" data-product-id="{{this._id}}">
                             Agregar al carrito
                         </button>
                     </div>
@@ -62,7 +62,7 @@
             {{/each}}
         </div>
 
- <div class="pagination">
+        <div class="pagination">
             {{#if hasPrevPage}}
                 <a href="{{prevLink}}" class="page-btn">← Anterior</a>
             {{else}}
@@ -83,35 +83,57 @@
 </div>
 
 <script>
- async function getOrCreateCart() {
-        let cartId = sessionStorage.getItem('cartId');
+    async function getOrCreateCart() {
+        let cartId = sessionStorage.getItem("cartId");
         
         if (!cartId) {
-            const response = await fetch('/api/carts', { method: 'POST' });
-            const data = await response.json();
-            cartId = data.payload._id;
-            sessionStorage.setItem('cartId', cartId);
+            try {
+                const response = await fetch("/api/carts", { method: "POST" });
+                const data = await response.json();
+                
+                if (data.status === "success") {
+                    cartId = data.payload._id;
+                    sessionStorage.setItem("cartId", cartId);
+                } else {
+                    console.error("Error al crear carrito:", data);
+                    return null;
+                }
+            } catch (error) {
+                console.error("Error en la petición:", error);
+                return null;
+            }
         }
         
         return cartId;
     }
 
-    async function addToCart(productId) {
-        try {
-            const cartId = await getOrCreateCart();
-            const response = await fetch(`/api/carts/${cartId}/product/${productId}`, {
-                method: 'POST'
-            });
+    document.addEventListener("click", async (e) => {
+        if (e.target.classList.contains("btn-add-cart")) {
+            const productId = e.target.getAttribute("data-product-id");
             
-            const data = await response.json();
-            
-            if (data.status === 'success') {
-                alert('Producto agregado al carrito');
-            } else {
-                alert('Error al agregar producto: ' + data.message);
+            try {
+                const cartId = await getOrCreateCart();
+                
+                if (!cartId) {
+                    alert("Error al crear o acceder al carrito");
+                    return;
+                }
+                
+                const response = await fetch("/api/carts/" + cartId + "/product/" + productId, {
+                    method: "POST"
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === "success") {
+                    alert("Producto agregado al carrito");
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error al agregar producto al carrito");
             }
-        } catch (error) {
-            alert('Error al agregar producto al carrito');
         }
-    }
+    });
 </script>

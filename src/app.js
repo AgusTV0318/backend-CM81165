@@ -8,7 +8,7 @@ import { connectDB } from "./config/database.js";
 import productsRouter from "./routes/products.router.js";
 import cartsRouter from "./routes/carts.router.js";
 import viewsRouter from "./routes/views.router.js";
-import productDao from "./dao/ProductDao.js";
+import productDao from "./dao/productDao.js";
 
 dotenv.config();
 
@@ -31,6 +31,10 @@ app.engine(
           return total + item.product.price * item.quantity;
         }, 0);
       },
+    },
+    runtimeOptions: {
+      allowProtoPropertiesByDefault: true,
+      allowProtoMethodsByDefault: true,
     },
   })
 );
@@ -72,7 +76,7 @@ io.on("connection", (socket) => {
   socket.on("deleteProduct", async (id) => {
     try {
       await productDao.deleteProduct(id);
-      const result = await productDao.getProducts();
+      const result = await productDao.getProducts({});
       io.emit("updateProducts", result.payload);
       socket.emit("success", "Producto eliminado correctamente");
     } catch (error) {

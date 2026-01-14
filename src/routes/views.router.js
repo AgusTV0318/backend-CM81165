@@ -1,6 +1,7 @@
 import express from "express";
 import productDao from "../dao/productDao.js";
 import cartDao from "../dao/cartDao.js";
+import { CartModel } from "../models/cart.model.js";
 
 const router = express.Router();
 
@@ -21,7 +22,7 @@ router.get("/products", async (req, res) => {
     });
 
     res.render("products", {
-      title: "Products",
+      title: "Productos",
       products: result.payload,
       totalPages: result.totalPages,
       prevPage: result.prevPage,
@@ -73,6 +74,9 @@ router.get("/carts/:cid", async (req, res) => {
       });
     }
 
+    console.log("Carrito encontrado:", cart);
+    console.log("Productos en el carrito:", cart.products);
+
     res.render("cart", {
       title: "Mi Carrito",
       cart: cart,
@@ -80,14 +84,14 @@ router.get("/carts/:cid", async (req, res) => {
     });
   } catch (error) {
     res.status(500).render("error", {
-      error: "Error al cargar el carrito",
+      error: "Error al cargar el carrito" + error.message,
     });
   }
 });
 
-router.get("/realtimeproducts", async (req, res) => {
+router.get("/realtimeproducts", async (_req, res) => {
   try {
-    const result = await productDao.getProducts({});
+    const result = await productDao.getProducts({ limit: 50 });
     res.render("realTimeProducts", {
       title: "Productos en Tiempo Real",
       products: result.payload,

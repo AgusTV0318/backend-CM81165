@@ -8,7 +8,7 @@ const productSchema = new mongoose.Schema(
       required: [true, "El título es obligatorio"],
       trim: true,
     },
-    descripiton: {
+    description: {
       type: String,
       required: [true, "La descripción es obligatoria"],
       trim: true,

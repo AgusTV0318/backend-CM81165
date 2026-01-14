@@ -10,7 +10,7 @@
       <nav>
         <a href="/products">Productos</a>
         <a href="/realtimeproducts">Tiempo Real</a>
-        <a href="#" onclick="goToCart()">Mi Carrito</a>
+        <a href="javascript:void(0)" id="cartLink">Mi Carrito</a>
       </nav>
     </header>
 
@@ -19,13 +19,14 @@
     </main>
 
     <footer>
-      <p>&copy; 2024 E-commerce Backend</p>
+      <p>&copy; 2026 E-commerce Backend</p>
     </footer>
 
     <script>
-      function goToCart() { const cartId = sessionStorage.getItem('cartId'); if
-      (cartId) { window.location.href = `/carts/${cartId}`; } else { alert('No
-      tienes un carrito activo'); } }
+      document.getElementById("cartLink")?.addEventListener("click", function()
+      { const cartId = sessionStorage.getItem("cartId"); if (cartId && cartId
+      !== "null") { window.location.href = "/carts/" + cartId; } else {
+      alert("No tienes un carrito todavía. Agrega productos primero."); } });
     </script>
   </body>
 </html>

@@ -25,14 +25,18 @@
     <div id="productsList" class="products-grid">
       {{#if hasProducts}}
         {{#each products}}
-          <div class="product-card" data-id="{{this.id}}">
+          <div class="product-card" data-id="{{this._id}}">
             <h3>{{this.title}}</h3>
             <p class="description">{{this.description}}</p>
             <p class="price">Precio: ${{this.price}}</p>
             <p class="stock">Stock: {{this.stock}}</p>
             <p class="category">Categoría: {{this.category}}</p>
             <p class="code">Código: {{this.code}}</p>
-            <button class="delete-btn" onclick="deleteProduct({{this.id}})">
+            <button
+              class="delete-btn"
+              data-id="{{this._id}}"
+              onclick="deleteProduct(this.getAttribute('data-id'))"
+            >
               Eliminar
             </button>
           </div>
