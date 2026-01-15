@@ -127,6 +127,54 @@ class ProductDao {
       throw new Error(`Error al eliminar producto: ${error.message}`);
     }
   }
+
+  async decreaseStock(productId, quantity) {
+    try {
+      const product = await ProductModel.findById(productId);
+
+      if (!product) {
+        throw new Error("Producto no encontrado");
+      }
+
+      if (product.stock < quantity) {
+        throw new Error(
+          `Stock insuficiente para ${product.title}. Disponible ${product.stock}, Solicitando: ${quantity}`
+        );
+      }
+
+      product.stock -= quantity;
+
+      if (product.stock === 0) {
+        product.status = false;
+      }
+
+      await product.save();
+      return product;
+    } catch (error) {
+      throw new Error(`Error al descontar stock: ${error.message}`);
+    }
+  }
+
+  async increasteStock(productId, quantity) {
+    try {
+      const product = await ProductModel.findById(productId);
+
+      if (!product) {
+        throw new Error("Producto no encontrado");
+      }
+
+      product.stock += quantity;
+
+      if (product.stock > 0) {
+        product.status = true;
+      }
+
+      await product.save();
+      return product;
+    } catch (error) {
+      throw new Error(`Error al restaurar stock: ${error.message}`);
+    }
+  }
 }
 
 export default new ProductDao();

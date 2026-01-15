@@ -1,6 +1,7 @@
 import express from "express";
 import productDao from "../dao/productDao.js";
 import cartDao from "../dao/cartDao.js";
+import orderDao from "../dao/orderDao.js";
 import { CartModel } from "../models/cart.model.js";
 
 const router = express.Router();
@@ -104,4 +105,24 @@ router.get("/realtimeproducts", async (_req, res) => {
   }
 });
 
+router.get("/order/:code", async (req, res) => {
+  try {
+    const order = await orderDao.getOrderByCode(req.params.code);
+
+    if (!order) {
+      return res.status(404).render("error", {
+        error: "Orden no encontrada",
+      });
+    }
+
+    res.render("orderConfirmation", {
+      title: "Confirmación de Compra",
+      order: order,
+    });
+  } catch (error) {
+    res.status(500).render("error", {
+      error: "Error al cargar la orden",
+    });
+  }
+});
 export default router;

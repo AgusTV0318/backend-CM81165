@@ -58,9 +58,18 @@
                     Vaciar carrito
                 </button>
 
-                <button class="btn-checkout">
-                    Finalizar compra
-                </button>
+               <div class="checkout-section">
+    <input 
+        type="email" 
+        id="purchaserEmail" 
+        placeholder="Tu email para la compra" 
+        required
+        class="email-input"
+    >
+    <button class="btn-checkout" onclick="checkout()">
+        Finalizar compra
+    </button>
+</div>
 
                 <a href="/products" class="btn-continue">
                     Continuar comprando
@@ -135,6 +144,55 @@
             }
         } catch (error) {
             alert('Error al vaciar carrito');
+        }
+    }
+
+    async function checkout() {
+        const email = document.getElementById("purchaserEmail").value;
+        
+        if (!email) {
+            alert("Por favor ingresa tu email");
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert("Por favor ingresa un email válido");
+            return;
+        }
+
+        if (!confirm("¿Confirmar compra?")) {
+            return;
+        }
+
+        const button = event.target;
+        const originalText = button.textContent;
+        button.textContent = "Procesando...";
+        button.disabled = true;
+
+        try {
+            const response = await fetch(`/api/carts/{{cartId}}/purchase`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ purchaserEmail: email })
+            });
+
+            const data = await response.json();
+
+            if (data.status === "success") {
+                window.location.href = `/order/${data.payload.order.code}`;
+            } else {
+                alert(`Error: ${data.message}`);
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        } catch (error) {
+            alert("Error al procesar la compra. Por favor intenta nuevamente.");
+            console.error(error);
+            button.textContent = originalText;
+            button.disabled = false;
         }
     }
 </script>

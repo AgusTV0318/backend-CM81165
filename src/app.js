@@ -9,6 +9,7 @@ import productsRouter from "./routes/products.router.js";
 import cartsRouter from "./routes/carts.router.js";
 import viewsRouter from "./routes/views.router.js";
 import productDao from "./dao/productDao.js";
+import purchaseRouter from "./routes/purchase.router.js";
 
 dotenv.config();
 
@@ -31,6 +32,16 @@ app.engine(
           return total + item.product.price * item.quantity;
         }, 0);
       },
+      formatDate: (date) => {
+        const d = new Date(date);
+        return d.toLocaleDateString("es-AR", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      },
     },
     runtimeOptions: {
       allowProtoPropertiesByDefault: true,
@@ -47,6 +58,7 @@ app.use(express.static(join(__dirname, "public")));
 
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
+app.use("/api/carts", purchaseRouter);
 
 app.use("/", viewsRouter);
 

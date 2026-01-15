@@ -596,3 +596,22 @@ footer {
     align-items: flex-start;
   }
 }
+
+.checkout-section {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.email-input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.email-input:focus {
+  outline: none;
+  border-color: #3498db;
+}

@@ -1,0 +1,101 @@
+<div class="container">
+  <div class="order-confirmation">
+    <div class="success-icon">✅</div>
+    <h1>¡Compra realizada con éxito!</h1>
+
+    <div class="order-details">
+      <h2>Detalles de la orden</h2>
+      <div class="detail-row">
+        <span class="label">Código de orden:</span>
+        <span class="value code">{{order.code}}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Fecha:</span>
+        <span class="value">{{formatDate order.purchaseDateTime}}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Email:</span>
+        <span class="value">{{order.purchaser}}</span>
+      </div>
+      <div class="detail-row total">
+        <span class="label">Total:</span>
+        <span class="value">${{order.amount}}</span>
+      </div>
+    </div>
+
+    <div class="purchased-products">
+      <h2>Productos comprados</h2>
+      {{#each order.products}}
+        <div class="order-item">
+          <div class="item-info">
+            <h3>{{this.title}}</h3>
+            <p class="item-price">Precio unitario: ${{this.price}}</p>
+          </div>
+          <div class="item-quantity">
+            <span>Cantidad: {{this.quantity}}</span>
+            <span class="item-subtotal">Subtotal: ${{multiply
+                this.price
+                this.quantity
+              }}</span>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+
+    {{#if productsWithoutStock}}
+      <div class="products-without-stock">
+        <h3>⚠️ Productos sin stock suficiente</h3>
+        <p>Los siguientes productos no pudieron ser procesados:</p>
+        <ul>
+          {{#each productsWithoutStock}}
+            <li>
+              <strong>{{this.title}}</strong>
+              - Solicitado:
+              {{this.requestedQuantity}}, Disponible:
+              {{this.availableStock}}
+            </li>
+          {{/each}}
+        </ul>
+      </div>
+    {{/if}}
+
+    <div class="actions">
+      <a href="/products" class="btn-continue-shopping">Seguir comprando</a>
+      <button onclick="window.print()" class="btn-print">Imprimir ticket</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .order-confirmation { max-width: 800px; margin: 2rem auto; background: white;
+  padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .success-icon { font-size: 4rem; text-align: center; margin-bottom: 1rem; }
+  .order-confirmation h1 { text-align: center; color: #27ae60; margin-bottom:
+  2rem; } .order-details { background: #f8f9fa; padding: 1.5rem; border-radius:
+  8px; margin-bottom: 2rem; } .order-details h2 { margin-bottom: 1rem; color:
+  #2c3e50; } .detail-row { display: flex; justify-content: space-between;
+  padding: 0.75rem 0; border-bottom: 1px solid #e0e0e0; } .detail-row.total {
+  border-bottom: none; border-top: 2px solid #2c3e50; margin-top: 0.5rem;
+  font-size: 1.2rem; font-weight: bold; } .label { color: #7f8c8d; } .value {
+  font-weight: bold; color: #2c3e50; } .value.code { font-family: monospace;
+  background: #e8f5e9; padding: 0.25rem 0.5rem; border-radius: 4px; color:
+  #27ae60; } .purchased-products h2 { margin-bottom: 1rem; color: #2c3e50; }
+  .order-item { display: flex; justify-content: space-between; align-items:
+  center; padding: 1rem; border: 1px solid #e0e0e0; border-radius: 8px;
+  margin-bottom: 1rem; } .item-info h3 { color: #2c3e50; margin-bottom: 0.5rem;
+  } .item-price { color: #27ae60; } .item-quantity { text-align: right; }
+  .item-subtotal { display: block; font-weight: bold; color: #2c3e50;
+  margin-top: 0.5rem; } .products-without-stock { background: #fff3cd; border:
+  1px solid #ffc107; padding: 1.5rem; border-radius: 8px; margin: 2rem 0; }
+  .products-without-stock h3 { color: #856404; margin-bottom: 0.5rem; }
+  .products-without-stock ul { margin-top: 1rem; padding-left: 1.5rem; }
+  .products-without-stock li { margin: 0.5rem 0; color: #856404; } .actions {
+  display: flex; gap: 1rem; margin-top: 2rem; justify-content: center; }
+  .btn-continue-shopping, .btn-print { padding: 1rem 2rem; border-radius: 4px;
+  text-decoration: none; font-weight: bold; transition: all 0.3s; border: none;
+  cursor: pointer; font-size: 1rem; } .btn-continue-shopping { background-color:
+  #3498db; color: white; display: inline-block; } .btn-continue-shopping:hover {
+  background-color: #2980b9; } .btn-print { background-color: #95a5a6; color:
+  white; } .btn-print:hover { background-color: #7f8c8d; } @media print {
+  .actions { display: none; } .order-confirmation { box-shadow: none; } }
+</style>
