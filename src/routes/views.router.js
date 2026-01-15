@@ -74,9 +74,6 @@ router.get("/carts/:cid", async (req, res) => {
       });
     }
 
-    console.log("Carrito encontrado:", cart);
-    console.log("Productos en el carrito:", cart.products);
-
     res.render("cart", {
       title: "Mi Carrito",
       cart: cart,

@@ -12,7 +12,6 @@ document.getElementById("addProductForm").addEventListener("submit", (e) => {
     category: document.getElementById("category").value,
   };
 
-  console.log("Enviando producto:", product);
   socket.emit("addProduct", product);
 
   e.target.reset();

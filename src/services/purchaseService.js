@@ -5,11 +5,7 @@ import orderDao from "../dao/orderDao.js";
 class PurchaseService {
   async processPurchase(cartId, purchaserEmail) {
     try {
-      console.log("=== INICIANDO COMPRA ===");
-      console.log("Cart ID:", cartId);
-      console.log("Email:", purchaserEmail);
       const cart = await cartDao.getCartById(cartId);
-      console.log("Carrito obtenido:", cart);
 
       if (!cart) {
         throw new Error("Carrito no encontrado");
@@ -18,8 +14,6 @@ class PurchaseService {
       if (!cart.products || cart.products.length === 0) {
         throw new Error(`El carrito esta vacío`);
       }
-
-      console.log("Productos en carrito:", cart.products.length);
 
       if (!purchaserEmail) {
         throw new Error(`Debe proporcionar un email de comprador`);
@@ -68,18 +62,11 @@ class PurchaseService {
         quantity: item.quantity,
       }));
 
-      console.log("=== CREANDO ORDEN ===");
-      console.log("Total:", totalAmount);
-      console.log("Email:", purchaserEmail);
-      console.log("Productos a ordenar:", orderProducts);
-
       const order = await orderDao.createOrder({
         amount: totalAmount,
         purchaser: purchaserEmail,
         products: orderProducts,
       });
-
-      console.log("Orden creada:", order);
 
       for (const item of productsToProcess) {
         await productDao.decreaseStock(item.product._id, item.quantity);
